@@ -1,27 +1,30 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Rss, Gamepad } from 'lucide-react';
-import { DrawControlModal } from '@/components/DrawControlModal';
+import { ArrowLeft, Gamepad, Zap, Loader2 } from 'lucide-react';
 import { WinnerModal } from '@/components/WinnerModal';
 import { cn } from '@/lib/utils';
 import { BingoCard } from '@/components/BingoCard';
+import { drawNumberAction } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+
 
 const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
 
 export default function PlayerPage() {
-  const [isDrawModalOpen, setDrawModalOpen] = useState(false);
   const [isWinnerModalOpen, setWinnerModalOpen] = useState(false);
-  const { isMounted, rooms } = useBingo();
+  const { isMounted, rooms, drawNumber } = useBingo();
   const router = useRouter();
   const params = useParams();
   const roomId = params.id as string;
   const playerId = params.playerId as string;
+  const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
   const room = useMemo(() => rooms.find(r => r.id === roomId), [rooms, roomId]);
   const player = useMemo(() => room?.players.find(p => p.id === playerId), [room, playerId]);
@@ -32,6 +35,32 @@ export default function PlayerPage() {
       setWinnerModalOpen(true);
     }
   }, [winner]);
+
+  const handleDraw = useCallback(async () => {
+    if (!room) return;
+    if (room.winner) {
+        toast({ variant: 'destructive', title: 'Jogo Finalizado', description: 'Um vencedor já foi declarado.' });
+        return;
+    };
+    if (room.draw.drawnNumbers.length >= 75) {
+        toast({ variant: 'destructive', title: 'Jogo Finalizado', description: 'Todos os números já foram sorteados.' });
+        return;
+    }
+
+    startTransition(async () => {
+      try {
+        const result = await drawNumberAction({ drawnNumbers: room.draw.drawnNumbers });
+        if (result.error) {
+          toast({ variant: 'destructive', title: 'Erro no Sorteio', description: result.error });
+        } else if (result.newNumber) {
+          drawNumber(room.id, result.newNumber);
+        }
+      } catch (e) {
+        toast({ variant: 'destructive', title: 'Erro no Sorteio', description: 'Não foi possível sortear um novo número.' });
+      }
+    });
+  }, [room, drawNumber, toast]);
+
 
   if (!isMounted) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
@@ -63,9 +92,9 @@ export default function PlayerPage() {
             <h1 className="text-2xl font-bold font-headline text-primary">{player.name}'s Card</h1>
             <p className="text-muted-foreground">{room.name}</p>
         </div>
-        <Button onClick={() => setDrawModalOpen(true)}>
-          <Rss className="mr-2 h-4 w-4" />
-          Sorteio
+        <Button onClick={handleDraw} disabled={isPending || !!room.winner}>
+          {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
+          Sortear Número
         </Button>
       </header>
 
@@ -113,11 +142,6 @@ export default function PlayerPage() {
         </div>
       </main>
 
-      <DrawControlModal 
-        isOpen={isDrawModalOpen} 
-        setIsOpen={setDrawModalOpen} 
-        room={room} 
-      />
       {winner && (
         <WinnerModal 
           isOpen={isWinnerModalOpen} 

@@ -1,10 +1,11 @@
+'use server';
 
 export type BingoNumber = number | 'FREE';
 
 export interface Player {
   id: string;
   name: string;
-  card: BingoNumber[][];
+  card: BingoNumber[]; // Alterado de BingoNumber[][] para BingoNumber[]
 }
 
 export interface Draw {

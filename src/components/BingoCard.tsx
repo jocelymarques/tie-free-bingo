@@ -5,16 +5,17 @@ import { cn } from '@/lib/utils';
 import { Star } from 'lucide-react';
 
 interface BingoCardProps {
-  playerCard: BingoNumber[][];
+  playerCard: BingoNumber[]; // Updated to accept a flat array
   drawnNumbers: number[];
 }
 
 export function BingoCard({ playerCard, drawnNumbers }: BingoCardProps) {
   const markedNumbers = new Set(drawnNumbers);
 
+  // The card is now a flat array of 25 items. The parent grid will handle the 5x5 layout.
   return (
     <div className="grid grid-cols-5 gap-1 sm:gap-2 aspect-square">
-      {playerCard.flat().map((number, index) => {
+      {playerCard.map((number, index) => {
         const isMarked = number === 'FREE' || markedNumbers.has(number);
         
         return (

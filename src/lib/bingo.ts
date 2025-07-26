@@ -22,43 +22,58 @@ function generateColumn(colIndex: number): number[] {
   return Array.from(column);
 }
 
-// Generates a full 5x5 bingo card.
-export function generateBingoCard(): BingoNumber[][] {
-  const card: BingoNumber[][] = Array(CARD_SIZE).fill(null).map(() => Array(CARD_SIZE));
+// Generates a full 5x5 bingo card as a flattened array.
+export function generateBingoCard(): BingoNumber[] {
+  const card: BingoNumber[] = Array(CARD_SIZE * CARD_SIZE);
+  const tempCard: BingoNumber[][] = Array(CARD_SIZE).fill(null).map(() => []);
 
   for (let col = 0; col < CARD_SIZE; col++) {
     const columnNumbers = generateColumn(col);
     for (let row = 0; row < CARD_SIZE; row++) {
       if (col === 2 && row === 2) {
-        card[row][col] = 'FREE';
+        tempCard[row][col] = 'FREE';
       } else {
-        card[row][col] = columnNumbers.pop() as number;
+        tempCard[row][col] = columnNumbers.pop() as number;
       }
     }
   }
+
+  // Flatten the 2D array into a 1D array, column by column.
+  for (let col = 0; col < CARD_SIZE; col++) {
+    for (let row = 0; row < CARD_SIZE; row++) {
+      card[col * CARD_SIZE + row] = tempCard[row][col];
+    }
+  }
+
   return card;
 }
 
-// Checks if a player has won by marking the entire card.
+// Checks if a player has won. Works with a flattened card.
 export function checkWin(player: Player, drawnNumbers: number[]): boolean {
-    const card = player.card;
+    const card = player.card; // This is now a 1D array
     const marked = new Set<BingoNumber>([...drawnNumbers, 'FREE']);
 
+    // Check rows and columns
     for (let i = 0; i < CARD_SIZE; i++) {
         let rowWin = true;
         let colWin = true;
         for (let j = 0; j < CARD_SIZE; j++) {
-            if (!marked.has(card[i][j])) rowWin = false;
-            if (!marked.has(card[j][i])) colWin = false;
+            // Check row i
+            if (!marked.has(card[i * CARD_SIZE + j])) rowWin = false;
+            // Check col i
+            if (!marked.has(card[j * CARD_SIZE + i])) colWin = false;
         }
         if (rowWin || colWin) return true;
     }
 
+    // Check diagonals
     let diag1Win = true;
     let diag2Win = true;
     for (let i = 0; i < CARD_SIZE; i++) {
-        if (!marked.has(card[i][i])) diag1Win = false;
-        if (!marked.has(card[i][CARD_SIZE - 1 - i])) diag2Win = false;
+        // Top-left to bottom-right
+        if (!marked.has(card[i * CARD_SIZE + i])) diag1Win = false;
+        // Top-right to bottom-left
+        if (!marked.has(card[i * CARD_SIZE + (CARD_SIZE - 1 - i)])) diag2Win = false;
     }
     if (diag1Win || diag2Win) return true;
 

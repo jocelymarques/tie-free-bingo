@@ -100,12 +100,12 @@ export default function PlayerPage() {
                 {lastDrawnNumber && (
                     <div className="flex flex-col items-center">
                         <span className="text-xs text-muted-foreground">Último número</span>
-                        <div className="flex items-center justify-center p-1 rounded-full aspect-square text-lg font-bold bg-accent text-accent-foreground shadow-lg h-10 w-10">
+                        <div className="flex items-center justify-center p-1 rounded-full aspect-square text-2xl font-bold bg-accent text-accent-foreground shadow-lg h-14 w-14">
                             {lastDrawnNumber}
                         </div>
                     </div>
                 )}
-                <Button onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto">
+                <Button size="lg" onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto">
                     {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
                     Sortear Número
                 </Button>
@@ -146,7 +146,7 @@ export default function PlayerPage() {
                             <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 text-center">
                                 {[...room.draw.drawnNumbers].reverse().map((num) => (
                                     <div key={num} className={cn(
-                                        "flex items-center justify-center p-1 rounded-full aspect-square text-base font-bold transition-all duration-300 h-10 w-10",
+                                        "flex items-center justify-center p-1 rounded-full aspect-square text-lg font-bold transition-all duration-300 h-12 w-12",
                                         num === lastDrawnNumber ? "bg-accent text-accent-foreground shadow-lg" : "bg-primary/10 text-primary"
                                     )}>
                                         {num}

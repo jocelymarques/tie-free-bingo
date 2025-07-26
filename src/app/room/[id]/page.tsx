@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, FormEvent, useMemo, useTransition } from 'react';
+import React, { useState, FormEvent, useMemo, useTransition, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
@@ -13,14 +13,22 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function RoomPage() {
   const [newPlayerName, setNewPlayerName] = useState('');
-  const { loading, getRoom, addPlayer } = useBingo();
+  const { getRoom, addPlayer } = useBingo();
   const router = useRouter();
   const params = useParams();
   const roomId = params.id as string;
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(true);
 
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
+
+  useEffect(() => {
+    if (room) {
+      setIsLoading(false);
+    }
+  }, [room]);
+
 
   const handleAddPlayer = (e: FormEvent) => {
     e.preventDefault();
@@ -52,8 +60,8 @@ export default function RoomPage() {
     });
   };
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin h-8 w-8" /> Carregando Sala...</div>;
   }
 
   if (!room) {
@@ -136,7 +144,7 @@ export default function RoomPage() {
                   <li
                     key={player.id}
                     className={`flex justify-between items-center p-4 rounded-lg transition-all ${
-                      player.id === winner?.id ? 'bg-accent/80 text-accent-foreground shadow-lg scale-105' : 'bg-secondary/50'
+                      player.id === winner?.id ? 'bg-accent/80 text-accent-foreground shadow-lg' : 'bg-secondary/50'
                     }`}
                   >
                     <div className="flex items-center gap-3">

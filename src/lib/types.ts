@@ -18,7 +18,3 @@ export interface Room {
   draw: Draw,
   winner?: string | null; // playerId
 }
-
-export interface BingoData {
-  rooms: Room[];
-}

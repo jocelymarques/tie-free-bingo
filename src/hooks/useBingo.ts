@@ -12,18 +12,16 @@ import {
     getDoc
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { type Room, type Player, BingoNumber } from '@/lib/types';
+import { type Room, type Player } from '@/lib/types';
 import { generateBingoCard, checkWin } from '@/lib/bingo';
 
 export function useBingo() {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'rooms'), (snapshot) => {
       const roomsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Room));
       setRooms(roomsData);
-      setLoading(false);
     });
     return () => unsub();
   }, []);
@@ -62,12 +60,14 @@ export function useBingo() {
   const drawNumber = async (roomId: string, newNumber: number) => {
     const roomRef = doc(db, 'rooms', roomId);
     const roomSnap = await getDoc(roomRef);
+    if (!roomSnap.exists()) return;
+
     const room = roomSnap.data() as Room;
 
     if (!room || room.winner || room.draw.drawnNumbers.includes(newNumber)) return;
 
     const drawnNumbers = [...room.draw.drawnNumbers, newNumber];
-    let winnerId: string | undefined = undefined;
+    let winnerId: string | null = null;
 
     for (const player of room.players) {
         if(checkWin(player, drawnNumbers)) {
@@ -78,7 +78,7 @@ export function useBingo() {
     
     await updateDoc(roomRef, {
         'draw.drawnNumbers': drawnNumbers,
-        'winner': winnerId ?? null,
+        'winner': winnerId,
     });
   };
 
@@ -87,7 +87,6 @@ export function useBingo() {
   }
   
   return {
-    loading,
     rooms,
     getRoom,
     addRoom,

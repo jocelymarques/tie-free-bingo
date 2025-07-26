@@ -7,7 +7,7 @@ import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle, Loader2, Ticket } from 'lucide-react';
+import { PlusCircle, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const { addRoom } = useBingo();
@@ -39,7 +39,7 @@ export default function Home() {
     <main className="container mx-auto p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-2xl space-y-8">
         <header className="text-center">
-          <Ticket className="h-24 w-24 mx-auto text-primary" />
+          <img src="/icon.svg" alt="Bingo Icon" className="h-24 w-24 mx-auto" />
           <h1 className="text-5xl font-bold font-headline text-primary mt-4">Bingo Online</h1>
           <p className="text-muted-foreground mt-2 text-lg">Crie uma sala para começar a jogar</p>
         </header>

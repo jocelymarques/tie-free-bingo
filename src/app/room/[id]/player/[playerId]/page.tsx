@@ -83,19 +83,23 @@ export default function PlayerPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="container mx-auto p-4 flex justify-between items-center">
-        <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar para Sala
-        </Button>
-        <div className="text-center">
-            <h1 className="text-2xl font-bold font-headline text-primary">{player.name}'s Card</h1>
+       <header className="container mx-auto p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex-1 w-full sm:w-auto">
+          <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)} className="w-full sm:w-auto">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para Sala
+          </Button>
+        </div>
+        <div className="text-center order-first sm:order-none">
+            <h1 className="text-2xl font-bold font-headline text-primary">Cartela de {player.name}</h1>
             <p className="text-muted-foreground">{room.name}</p>
         </div>
-        <Button onClick={handleDraw} disabled={isPending || !!room.winner}>
-          {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
-          Sortear Número
-        </Button>
+        <div className="flex-1 w-full sm:w-auto flex justify-end">
+          <Button onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto">
+            {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
+            Sortear Número
+          </Button>
+        </div>
       </header>
 
       <main className="container mx-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 p-4">

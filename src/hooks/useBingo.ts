@@ -36,8 +36,7 @@ export function useBingo() {
       winner: null,
     };
     const docRef = await addDoc(collection(db, 'rooms'), newRoomData);
-    const newRoom = { id: docRef.id, ...newRoomData } as Room;
-    return newRoom;
+    return { id: docRef.id, ...newRoomData };
   };
 
   const addPlayer = async (roomId: string, playerName: string): Promise<Player | null> => {

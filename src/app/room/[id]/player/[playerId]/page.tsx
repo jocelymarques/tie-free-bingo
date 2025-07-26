@@ -1,0 +1,130 @@
+'use client';
+
+import React, { useMemo, useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useBingo } from '@/hooks/useBingo';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ArrowLeft, Rss, Gamepad } from 'lucide-react';
+import { DrawControlModal } from '@/components/DrawControlModal';
+import { WinnerModal } from '@/components/WinnerModal';
+import { cn } from '@/lib/utils';
+import { BingoCard } from '@/components/BingoCard';
+
+const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
+
+export default function PlayerPage() {
+  const [isDrawModalOpen, setDrawModalOpen] = useState(false);
+  const [isWinnerModalOpen, setWinnerModalOpen] = useState(false);
+  const { isMounted, rooms } = useBingo();
+  const router = useRouter();
+  const params = useParams();
+  const roomId = params.id as string;
+  const playerId = params.playerId as string;
+
+  const room = useMemo(() => rooms.find(r => r.id === roomId), [rooms, roomId]);
+  const player = useMemo(() => room?.players.find(p => p.id === playerId), [room, playerId]);
+  const winner = useMemo(() => room?.winner ? room.players.find(p => p.id === room.winner) : null, [room]);
+  
+  useEffect(() => {
+    if (winner) {
+      setWinnerModalOpen(true);
+    }
+  }, [winner]);
+
+  if (!isMounted) {
+    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  }
+  
+  if (!room || !player) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+        <h2 className="text-2xl font-bold text-destructive mb-4">Sala ou Jogador não encontrado</h2>
+        <p className="text-muted-foreground mb-6">Verifique o link ou volte para o início.</p>
+        <Button onClick={() => router.push('/')}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para o Início
+        </Button>
+      </div>
+    );
+  }
+  
+  const lastDrawnNumber = room.draw.drawnNumbers[room.draw.drawnNumbers.length - 1];
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="container mx-auto p-4 flex justify-between items-center">
+        <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para Sala
+        </Button>
+        <div className="text-center">
+            <h1 className="text-2xl font-bold font-headline text-primary">{player.name}'s Card</h1>
+            <p className="text-muted-foreground">{room.name}</p>
+        </div>
+        <Button onClick={() => setDrawModalOpen(true)}>
+          <Rss className="mr-2 h-4 w-4" />
+          Sorteio
+        </Button>
+      </header>
+
+      <main className="container mx-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+        <div className="md:col-span-2">
+            <Card className="h-full shadow-lg">
+                <CardHeader className="text-center p-2 sm:p-4">
+                    <div className="grid grid-cols-5 gap-1 text-2xl sm:text-4xl font-bold text-primary font-headline">
+                        {BINGO_LETTERS.map(letter => <div key={letter}>{letter}</div>)}
+                    </div>
+                </CardHeader>
+                <CardContent className="p-2 sm:p-4">
+                    <BingoCard playerCard={player.card} drawnNumbers={room.draw.drawnNumbers} />
+                </CardContent>
+            </Card>
+        </div>
+
+        <div className="md:col-span-1">
+            <Card className="h-full flex flex-col shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl">Números Sorteados ({room.draw.drawnNumbers.length})</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow p-0">
+                    <ScrollArea className="h-[calc(100%-1rem)] pr-6 pl-6 pb-6">
+                        {room.draw.drawnNumbers.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                                <Gamepad className="h-12 w-12 mb-4" />
+                                <p>Aguardando início do sorteio...</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 text-center">
+                                {room.draw.drawnNumbers.map((num) => (
+                                    <div key={num} className={cn(
+                                        "flex items-center justify-center p-2 rounded-full aspect-square text-lg font-bold transition-all duration-300",
+                                        num === lastDrawnNumber ? "bg-accent text-accent-foreground scale-110 shadow-lg" : "bg-primary/10 text-primary"
+                                    )}>
+                                        {num}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </ScrollArea>
+                </CardContent>
+            </Card>
+        </div>
+      </main>
+
+      <DrawControlModal 
+        isOpen={isDrawModalOpen} 
+        setIsOpen={setDrawModalOpen} 
+        room={room} 
+      />
+      {winner && (
+        <WinnerModal 
+          isOpen={isWinnerModalOpen} 
+          setIsOpen={setWinnerModalOpen} 
+          winnerName={winner.name} 
+        />
+      )}
+    </div>
+  );
+}

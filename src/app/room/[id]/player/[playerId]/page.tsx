@@ -5,7 +5,7 @@ import React, { useMemo, useState, useEffect, useCallback, useTransition } from 
 import { useParams, useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Gamepad, Zap, Loader2 } from 'lucide-react';
 import { WinnerModal } from '@/components/WinnerModal';
@@ -85,35 +85,18 @@ export default function PlayerPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-       <header className="container mx-auto p-4 flex items-center justify-start">
+       <header className="container mx-auto p-4 flex items-center justify-between">
           <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar para Sala
           </Button>
+          <div className="text-right">
+              <h1 className="text-2xl font-bold font-headline text-primary">Cartela de {player.name}</h1>
+              <p className="text-muted-foreground">{room.name}</p>
+          </div>
       </header>
 
-      <div className="container mx-auto flex flex-col items-center justify-center flex-grow">
-        <div className="text-center">
-            <h1 className="text-2xl font-bold font-headline text-primary">Cartela de {player.name}</h1>
-            <p className="text-muted-foreground">{room.name}</p>
-        </div>
-        <div className="flex flex-col items-center gap-4 my-4">
-            {lastDrawnNumber && (
-                <div className="flex flex-col items-center">
-                    <span className="text-xs text-muted-foreground">Último número</span>
-                    <div key={lastDrawnNumber} className="flex items-center justify-center p-1 rounded-full aspect-square text-2xl font-bold bg-accent text-accent-foreground shadow-lg h-16 w-16 animate-ball-pop">
-                        {lastDrawnNumber}
-                    </div>
-                </div>
-            )}
-            <Button size="lg" onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto text-lg p-6">
-                {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
-                Sortear Número
-            </Button>
-        </div>
-      </div>
-
-      <main className="container mx-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 p-4 mb-8">
+      <main className="container mx-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
         <div className="md:col-span-2">
             <Card className="h-full shadow-lg">
                 <CardHeader className="text-center p-2 sm:p-4">
@@ -127,23 +110,41 @@ export default function PlayerPage() {
             </Card>
         </div>
 
-        <div className="md:col-span-1">
+        <div className="md:col-span-1 space-y-4">
+            <Card className="shadow-lg">
+                <CardContent className="p-4 flex flex-col items-center gap-4">
+                    {lastDrawnNumber && (
+                        <div className="flex flex-col items-center">
+                            <span className="text-sm text-muted-foreground">Último número</span>
+                            <div key={lastDrawnNumber} className="flex items-center justify-center p-1 rounded-full aspect-square text-3xl font-bold bg-accent text-accent-foreground shadow-lg h-20 w-20 animate-ball-pop">
+                                {lastDrawnNumber}
+                            </div>
+                        </div>
+                    )}
+                    <Button size="lg" onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full text-lg p-6">
+                        {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
+                        Sortear Número
+                    </Button>
+                </CardContent>
+            </Card>
+            
             <Card className="h-full flex flex-col shadow-lg">
                 <CardHeader>
-                    <CardTitle className="font-headline text-xl">Números Sorteados ({room.draw.drawnNumbers.length})</CardTitle>
+                    <CardTitle className="font-headline text-xl">Números Sorteados</CardTitle>
+                    <CardDescription>Total: {room.draw.drawnNumbers.length}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow p-0">
-                    <ScrollArea className="h-[calc(100%-1rem)] p-6">
+                    <ScrollArea className="h-[250px] p-4">
                         {room.draw.drawnNumbers.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                                 <Gamepad className="h-12 w-12 mb-4" />
                                 <p>Aguardando início do sorteio...</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 text-center">
+                            <div className="flex flex-row flex-wrap gap-2 justify-center">
                                 {[...room.draw.drawnNumbers].reverse().map((num) => (
                                     <div key={num} className={cn(
-                                        "flex items-center justify-center p-1 rounded-full aspect-square text-lg font-bold transition-all duration-300 h-12 w-12",
+                                        "flex items-center justify-center p-1 rounded-full aspect-square text-lg font-bold transition-all duration-300 h-10 w-10",
                                         num === lastDrawnNumber ? "bg-accent text-accent-foreground shadow-lg" : "bg-primary/10 text-primary"
                                     )}>
                                         {num}
@@ -167,3 +168,4 @@ export default function PlayerPage() {
     </div>
   );
 }
+

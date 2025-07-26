@@ -19,23 +19,16 @@ const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
 
 export default function PlayerPage() {
   const [isWinnerModalOpen, setWinnerModalOpen] = useState(false);
-  const { getRoom, drawNumber } = useBingo();
+  const { getRoom, drawNumber, isLoading: isBingoLoading } = useBingo();
   const router = useRouter();
   const params = useParams();
   const roomId = params.id as string;
   const playerId = params.playerId as string;
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [isLoading, setIsLoading] = useState(true);
 
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
   const player = useMemo(() => room?.players.find(p => p.id === playerId), [room, playerId]);
-  
-  useEffect(() => {
-    if (room && player) {
-      setIsLoading(false);
-    }
-  }, [room, player]);
 
   const winner = useMemo(() => room?.winner ? room.players.find(p => p.id === room.winner) : null, [room]);
   
@@ -71,7 +64,7 @@ export default function PlayerPage() {
   }, [room, drawNumber, toast]);
 
 
-  if (isLoading) {
+  if (isBingoLoading) {
     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin h-8 w-8" /> Carregando Jogador...</div>;
   }
   

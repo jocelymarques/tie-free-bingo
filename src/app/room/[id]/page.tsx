@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, FormEvent, useMemo, useTransition, useEffect } from 'react';
+import React, { useState, FormEvent, useMemo, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
@@ -13,24 +13,14 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function RoomPage() {
   const [newPlayerName, setNewPlayerName] = useState('');
-  const { getRoom, addPlayer } = useBingo();
+  const { getRoom, addPlayer, isLoading: isBingoLoading } = useBingo();
   const router = useRouter();
   const params = useParams();
   const roomId = params.id as string;
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [isLoading, setIsLoading] = useState(true);
 
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
-
-  useEffect(() => {
-    // We need to handle the case where the room is not found initially,
-    // but might be available on a subsequent render from the snapshot listener.
-    if (room !== undefined) {
-      setIsLoading(false);
-    }
-  }, [room]);
-
 
   const handleAddPlayer = (e: FormEvent) => {
     e.preventDefault();
@@ -62,12 +52,12 @@ export default function RoomPage() {
     });
   };
 
-  if (isLoading) {
+  if (isBingoLoading) {
     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin h-8 w-8" /> Carregando Sala...</div>;
   }
 
   // After loading, if the room is null, it means it doesn't exist.
-  if (room === null || room === undefined) {
+  if (!room) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
         <h2 className="text-2xl font-bold text-destructive mb-4">Sala não encontrada</h2>

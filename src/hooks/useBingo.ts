@@ -26,13 +26,16 @@ const generateSimpleId = (length = 16) => {
 
 export function useBingo() {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'rooms'), (snapshot) => {
       const roomsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Room));
       setRooms(roomsData);
+      setIsLoading(false);
     }, (error) => {
       console.error("Erro ao escutar atualizações de salas:", error);
+      setIsLoading(false);
     });
     return () => {
       unsub();
@@ -111,13 +114,14 @@ export function useBingo() {
     }
   };
 
-  const getRoom = (id: string): Room | undefined => {
+  const getRoom = useCallback((id: string): Room | undefined => {
     const foundRoom = rooms.find(room => room.id === id);
     return foundRoom;
-  }
+  }, [rooms]);
   
   return {
     rooms,
+    isLoading,
     getRoom,
     addRoom,
     addPlayer,

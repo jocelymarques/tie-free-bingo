@@ -14,6 +14,7 @@ import {
 import { db } from '@/lib/firebase';
 import { type Room, type Player } from '@/lib/types';
 import { generateBingoCard } from '@/lib/bingo';
+import { checkWinnerAction } from '@/app/actions';
 
 // Simple alphanumeric ID generator to avoid issues with special characters in Firestore.
 const generateSimpleId = (length = 16) => {
@@ -29,6 +30,7 @@ export function useBingo() {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
+    setIsLoading(true);
     const unsub = onSnapshot(collection(db, 'rooms'), (snapshot) => {
       const roomsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Room));
       setRooms(roomsData);
@@ -108,6 +110,8 @@ export function useBingo() {
         await updateDoc(roomRef, {
             'draw.drawnNumbers': drawnNumbers,
         });
+
+        await checkWinnerAction(roomId);
 
     } catch(error) {
         console.error(`Erro ao sortear número na sala ${roomId}:`, error);

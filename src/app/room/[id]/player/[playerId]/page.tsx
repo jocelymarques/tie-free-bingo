@@ -129,10 +129,10 @@ export default function PlayerPage() {
                                 <p>Aguardando início do sorteio...</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 text-center">
+                            <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 text-center">
                                 {[...room.draw.drawnNumbers].reverse().map((num) => (
                                     <div key={num} className={cn(
-                                        "flex items-center justify-center p-2 rounded-full aspect-square text-lg font-bold transition-all duration-300",
+                                        "flex items-center justify-center p-1 rounded-full aspect-square text-base font-bold transition-all duration-300",
                                         num === lastDrawnNumber ? "bg-accent text-accent-foreground scale-110 shadow-lg" : "bg-primary/10 text-primary"
                                     )}>
                                         {num}

@@ -19,8 +19,15 @@ export default function Home() {
     e.preventDefault();
     if (newRoomName.trim()) {
       startTransition(async () => {
-        const newRoom = await addRoom(newRoomName.trim());
-        router.push(`/room/${newRoom.id}`);
+        try {
+          const newRoom = await addRoom(newRoomName.trim());
+          if (newRoom) {
+            router.push(`/room/${newRoom.id}`);
+          }
+        } catch (error) {
+            console.error("Failed to create room:", error)
+            // Optionally, show a toast to the user
+        }
       });
     }
   };

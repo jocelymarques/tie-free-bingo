@@ -13,7 +13,7 @@ export async function drawNumberAction({ drawnNumbers }: { drawnNumbers: number[
     }
 
     try {
-        const result = await drawBingoNumberFlow.run({ drawnNumbers });
+        const result = await drawBingoNumberFlow({ drawnNumbers });
         if (result && typeof result.newNumber === 'number') {
             return { newNumber: result.newNumber };
         }

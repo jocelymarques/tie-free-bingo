@@ -1,8 +1,9 @@
-import { defineFlow } from 'genkit';
+'use server';
+
 import { z } from 'zod';
 import { ai } from '../genkit';
 
-export const drawBingoNumberFlow = defineFlow(
+export const drawBingoNumberFlow = ai.defineFlow(
   {
     name: 'drawBingoNumberFlow',
     inputSchema: z.object({ drawnNumbers: z.array(z.number()) }),

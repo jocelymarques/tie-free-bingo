@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, FormEvent, useTransition } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
@@ -20,15 +20,17 @@ export default function Home() {
     if (!newRoomName.trim() || isCreating) return;
 
     setIsCreating(true);
+    console.log('Iniciando a criação da sala...');
     try {
       const roomId = await addRoom(newRoomName.trim());
       if (roomId) {
+        console.log(`Sala criada com sucesso! ID: ${roomId}. Redirecionando...`);
         router.push(`/room/${roomId}`);
       } else {
-        console.error("Failed to create room, no ID returned.");
+        console.error("Falha ao criar a sala: Nenhum ID de sala foi retornado.");
       }
     } catch (error) {
-      console.error("Failed to create room:", error);
+      console.error("Erro crítico ao criar a sala:", error);
     } finally {
       setIsCreating(false);
     }

@@ -13,76 +13,110 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { type Room, type Player } from '@/lib/types';
-import { generateBingoCard, checkWin } from '@/lib/bingo';
+import { generateBingoCard } from '@/lib/bingo';
 
 export function useBingo() {
   const [rooms, setRooms] = useState<Room[]>([]);
   
   useEffect(() => {
+    console.log("Iniciando a escuta por atualizações nas salas...");
     const unsub = onSnapshot(collection(db, 'rooms'), (snapshot) => {
       const roomsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Room));
       setRooms(roomsData);
+      console.log("Salas atualizadas:", roomsData);
+    }, (error) => {
+      console.error("Erro ao escutar atualizações de salas:", error);
     });
-    return () => unsub();
+    return () => {
+      console.log("Parando a escuta por atualizações nas salas.");
+      unsub();
+    };
   }, []);
 
   const addRoom = async (name: string): Promise<string> => {
-    const newRoomData = {
-      name,
-      players: [],
-      draw: {
-        drawnNumbers: [],
-      },
-      winner: null,
-    };
-    const docRef = await addDoc(collection(db, 'rooms'), newRoomData);
-    return docRef.id;
+    console.log(`Tentando adicionar uma nova sala com o nome: ${name}`);
+    try {
+      const newRoomData = {
+        name,
+        players: [],
+        draw: {
+          drawnNumbers: [],
+        },
+        winner: null,
+      };
+      const docRef = await addDoc(collection(db, 'rooms'), newRoomData);
+      console.log(`Documento da sala criado no Firebase com ID: ${docRef.id}`);
+      return docRef.id;
+    } catch (error) {
+      console.error("Erro ao adicionar sala no Firebase:", error);
+      throw error; // Re-lança o erro para ser pego no handleCreateRoom
+    }
   };
 
   const addPlayer = async (roomId: string, playerName: string): Promise<Player | null> => {
+    console.log(`Adicionando jogador '${playerName}' na sala '${roomId}'`);
     const roomRef = doc(db, 'rooms', roomId);
-    const roomSnap = await getDoc(roomRef);
-    if (!roomSnap.exists()) return null;
+    try {
+        const roomSnap = await getDoc(roomRef);
+        if (!roomSnap.exists()) {
+            console.error("Erro: Sala não encontrada para adicionar jogador.");
+            return null;
+        }
 
-    const newPlayer: Player = {
-      id: crypto.randomUUID(),
-      name: playerName,
-      card: generateBingoCard(),
-    };
+        const newPlayer: Player = {
+          id: crypto.randomUUID(),
+          name: playerName,
+          card: generateBingoCard(),
+        };
 
-    await updateDoc(roomRef, {
-      players: arrayUnion(newPlayer)
-    });
-    return newPlayer;
+        await updateDoc(roomRef, {
+          players: arrayUnion(newPlayer)
+        });
+        console.log("Jogador adicionado com sucesso:", newPlayer);
+        return newPlayer;
+    } catch (error) {
+        console.error(`Erro ao adicionar jogador na sala ${roomId}:`, error);
+        return null;
+    }
   };
 
   const drawNumber = async (roomId: string, newNumber: number) => {
+    console.log(`Sorteando número ${newNumber} para a sala ${roomId}`);
     const roomRef = doc(db, 'rooms', roomId);
-    const roomSnap = await getDoc(roomRef);
-    if (!roomSnap.exists()) return;
-
-    const room = roomSnap.data() as Room;
-
-    if (!room || room.winner || room.draw.drawnNumbers.includes(newNumber)) return;
-
-    const drawnNumbers = [...room.draw.drawnNumbers, newNumber];
-    let winnerId: string | null = null;
-
-    for (const player of room.players) {
-        if(checkWin(player, drawnNumbers)) {
-            winnerId = player.id;
-            break;
+    try {
+        const roomSnap = await getDoc(roomRef);
+        if (!roomSnap.exists()) {
+            console.error("Erro: Sala não encontrada para sortear número.");
+            return;
         }
+
+        const room = roomSnap.data() as Room;
+
+        if (room.winner) {
+            console.log("Sorteio ignorado: a sala já tem um vencedor.");
+            return;
+        }
+        if (room.draw.drawnNumbers.includes(newNumber)) {
+            console.log(`Sorteio ignorado: o número ${newNumber} já foi sorteado.`);
+            return;
+        }
+
+        const drawnNumbers = [...room.draw.drawnNumbers, newNumber];
+        
+        await updateDoc(roomRef, {
+            'draw.drawnNumbers': drawnNumbers,
+        });
+        console.log(`Número ${newNumber} adicionado à lista de sorteados.`);
+
+    } catch(error) {
+        console.error(`Erro ao sortear número na sala ${roomId}:`, error);
     }
-    
-    await updateDoc(roomRef, {
-        'draw.drawnNumbers': drawnNumbers,
-        'winner': winnerId,
-    });
   };
 
   const getRoom = (id: string): Room | undefined => {
-    return rooms.find(room => room.id === id);
+    const foundRoom = rooms.find(room => room.id === id);
+    // console.log(`Buscando sala com ID ${id}. Encontrada:`, foundRoom);
+    return foundRoom;
   }
   
   return {

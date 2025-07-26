@@ -15,20 +15,29 @@ import { db } from '@/lib/firebase';
 import { type Room, type Player } from '@/lib/types';
 import { generateBingoCard } from '@/lib/bingo';
 
+// Simple alphanumeric ID generator to avoid issues with special characters in Firestore.
+const generateSimpleId = (length = 16) => {
+    return Array.from(crypto.getRandomValues(new Uint8Array(length)))
+        .map((b) => b.toString(36).padStart(2, '0'))
+        .join('')
+        .slice(0, length);
+};
+
+
 export function useBingo() {
   const [rooms, setRooms] = useState<Room[]>([]);
   
   useEffect(() => {
-    console.log("Iniciando a escuta por atualizações nas salas...");
+    // console.log("Iniciando a escuta por atualizações nas salas...");
     const unsub = onSnapshot(collection(db, 'rooms'), (snapshot) => {
       const roomsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Room));
       setRooms(roomsData);
-      console.log("Salas atualizadas:", roomsData);
+      // console.log("Salas atualizadas:", roomsData);
     }, (error) => {
       console.error("Erro ao escutar atualizações de salas:", error);
     });
     return () => {
-      console.log("Parando a escuta por atualizações nas salas.");
+      // console.log("Parando a escuta por atualizações nas salas.");
       unsub();
     };
   }, []);
@@ -64,7 +73,7 @@ export function useBingo() {
         }
 
         const newPlayer: Player = {
-          id: crypto.randomUUID(),
+          id: generateSimpleId(),
           name: playerName,
           card: generateBingoCard(),
         };
@@ -81,7 +90,7 @@ export function useBingo() {
   };
 
   const drawNumber = async (roomId: string, newNumber: number) => {
-    console.log(`Sorteando número ${newNumber} para a sala ${roomId}`);
+    // console.log(`Sorteando número ${newNumber} para a sala ${roomId}`);
     const roomRef = doc(db, 'rooms', roomId);
     try {
         const roomSnap = await getDoc(roomRef);
@@ -106,7 +115,7 @@ export function useBingo() {
         await updateDoc(roomRef, {
             'draw.drawnNumbers': drawnNumbers,
         });
-        console.log(`Número ${newNumber} adicionado à lista de sorteados.`);
+        // console.log(`Número ${newNumber} adicionado à lista de sorteados.`);
 
     } catch(error) {
         console.error(`Erro ao sortear número na sala ${roomId}:`, error);

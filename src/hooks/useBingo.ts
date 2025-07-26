@@ -25,6 +25,16 @@ export function useBingo() {
 
   useEffect(() => {
     setIsMounted(true);
+    // Initial load
+    const item = window.localStorage.getItem(STORAGE_KEY);
+    if (item) {
+        try {
+            setData(JSON.parse(item));
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === STORAGE_KEY && event.newValue) {
         try {
@@ -45,6 +55,11 @@ export function useBingo() {
     if (typeof window !== 'undefined') {
       try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+        // Manually dispatch a storage event to trigger updates in the same tab
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: STORAGE_KEY,
+            newValue: JSON.stringify(newData)
+        }));
       } catch (error) {
         console.error('Error writing to localStorage', error);
       }
@@ -58,8 +73,6 @@ export function useBingo() {
       players: [],
       draw: {
         drawnNumbers: [],
-        isPaused: true,
-        interval: 5,
       },
     };
     const newData = { ...data, rooms: [...data.rooms, newRoom] };
@@ -113,21 +126,7 @@ export function useBingo() {
         winner: winnerId,
     };
 
-    if (winnerId) {
-        updatedRoom.draw!.isPaused = true;
-    }
-
     updateRoom(roomId, updatedRoom);
-  };
-
-  const setDrawConfig = (roomId: string, isPaused: boolean, interval: number) => {
-      const room = data.rooms.find(r => r.id === roomId);
-      if (!room) return;
-
-      const updatedRoom: Partial<Room> = {
-          draw: { ...room.draw, isPaused, interval },
-      };
-      updateRoom(roomId, updatedRoom);
   };
   
   return {
@@ -137,6 +136,5 @@ export function useBingo() {
     updateRoom,
     addPlayer,
     drawNumber,
-    setDrawConfig
   };
 }

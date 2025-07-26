@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useState, useCallback, useTransition } from 'react';
 import { type Room } from '@/lib/types';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Play, Pause, Loader2 } from 'lucide-react';
+import { Loader2, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { drawNumberAction } from '@/app/actions';
 
@@ -18,13 +16,19 @@ interface DrawControlModalProps {
 }
 
 export function DrawControlModal({ isOpen, setIsOpen, room }: DrawControlModalProps) {
-  const { setDrawConfig, drawNumber } = useBingo();
-  const [intervalSeconds, setIntervalSeconds] = useState(room.draw.interval);
+  const { drawNumber } = useBingo();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const handleDraw = useCallback(async () => {
-    if (room.winner) return;
+    if (room.winner) {
+        toast({ variant: 'destructive', title: 'Jogo Finalizado', description: 'Um vencedor já foi declarado.' });
+        return;
+    };
+    if (room.draw.drawnNumbers.length >= 75) {
+        toast({ variant: 'destructive', title: 'Jogo Finalizado', description: 'Todos os números já foram sorteados.' });
+        return;
+    }
 
     startTransition(async () => {
       try {
@@ -40,70 +44,30 @@ export function DrawControlModal({ isOpen, setIsOpen, room }: DrawControlModalPr
     });
   }, [room.id, room.draw.drawnNumbers, room.winner, drawNumber, toast]);
 
-  useEffect(() => {
-    if (!isOpen || room.draw.isPaused || room.winner) {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      handleDraw();
-    }, room.draw.interval * 1000);
-
-    return () => clearInterval(timer);
-  }, [isOpen, room.draw.isPaused, room.draw.interval, room.winner, handleDraw]);
-
-
-  const handleTogglePlay = () => {
-    if(room.winner) {
-        toast({ variant: 'destructive', title: 'Jogo Finalizado', description: 'Um vencedor já foi declarado.' });
-        return;
-    }
-    setDrawConfig(room.id, !room.draw.isPaused, intervalSeconds);
-  };
-  
-  const handleIntervalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = parseInt(e.target.value, 10);
-      if (!isNaN(value) && value > 0) {
-        setIntervalSeconds(value);
-        if(room.draw.isPaused){ // Only update config if paused to avoid restart
-            setDrawConfig(room.id, room.draw.isPaused, value);
-        }
-      }
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="font-headline">Controle do Sorteio</DialogTitle>
           <DialogDescription>
-            Inicie, pause ou configure o sorteio de números para a sala.
+            Sorteie um novo número para todos os jogadores na sala.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="interval" className="text-right">
-              Intervalo
-            </Label>
-            <Input
-              id="interval"
-              type="number"
-              value={intervalSeconds}
-              onChange={handleIntervalChange}
-              className="col-span-3"
-              min="1"
-              disabled={!room.draw.isPaused || !!room.winner}
-            />
-          </div>
+        <div className="py-4 text-center">
+            <Button 
+                onClick={handleDraw} 
+                disabled={isPending || !!room.winner}
+                size="lg"
+                className="w-full"
+            >
+                {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
+                Sortear Novo Número
+            </Button>
         </div>
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button onClick={handleDraw} disabled={isPending || !!room.winner}>
-                {isPending ? <Loader2 className="animate-spin" /> : "Sortear Manual"}
-            </Button>
-            <Button onClick={handleTogglePlay} disabled={isPending || !!room.winner}>
-                {room.draw.isPaused ? <Play className="mr-2 h-4 w-4" /> : <Pause className="mr-2 h-4 w-4" />}
-                {room.draw.isPaused ? 'Iniciar Sorteio' : 'Pausar Sorteio'}
-            </Button>
+        <DialogFooter>
+           <p className="text-sm text-muted-foreground text-center w-full">
+            Um novo número será sorteado e exibido para todos os jogadores.
+           </p>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -12,8 +12,6 @@ export interface Room {
   players: Player[];
   draw: {
     drawnNumbers: number[];
-    isPaused: boolean;
-    interval: number; // in seconds
   };
   winner?: string; // playerId
 }

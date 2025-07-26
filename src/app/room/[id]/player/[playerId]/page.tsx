@@ -96,10 +96,20 @@ export default function PlayerPage() {
             <p className="text-muted-foreground">{room.name}</p>
         </div>
         <div className="flex-1 w-full sm:w-auto flex justify-end">
-          <Button onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto">
-            {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
-            Sortear Número
-          </Button>
+            <div className="flex flex-col items-center gap-2">
+                {lastDrawnNumber && (
+                    <div className="flex flex-col items-center">
+                        <span className="text-xs text-muted-foreground">Último número</span>
+                        <div className="flex items-center justify-center p-1 rounded-full aspect-square text-lg font-bold bg-accent text-accent-foreground shadow-lg h-10 w-10">
+                            {lastDrawnNumber}
+                        </div>
+                    </div>
+                )}
+                <Button onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto">
+                    {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
+                    Sortear Número
+                </Button>
+            </div>
         </div>
       </header>
 

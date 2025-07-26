@@ -25,7 +25,7 @@ export default function Home() {
     <main className="container mx-auto p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-2xl space-y-8">
         <header className="text-center">
-          <h1 className="text-5xl font-bold font-headline text-primary">Bingo Local</h1>
+          <h1 className="text-5xl font-bold font-headline text-primary">Bingo Online</h1>
           <p className="text-muted-foreground mt-2 text-lg">Crie uma sala para começar a jogar</p>
         </header>
 

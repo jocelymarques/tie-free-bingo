@@ -1,4 +1,4 @@
-# **App Name**: Bingo Local
+# **App Name**: Bingo Online
 
 ## Core Features:
 

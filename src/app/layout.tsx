@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Bingo Local',
+  title: 'Bingo Online',
   description: 'A local-only Bingo game.',
 };
 

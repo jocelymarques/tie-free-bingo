@@ -13,23 +13,23 @@ export default function Home() {
   const { addRoom } = useBingo();
   const [newRoomName, setNewRoomName] = useState('');
   const router = useRouter();
-  const [isCreating, setIsCreating] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleCreateRoom = async (e: FormEvent) => {
     e.preventDefault();
-    if (newRoomName.trim() && !isCreating) {
-      setIsCreating(true);
+    if (!newRoomName.trim() || isPending) return;
+
+    startTransition(async () => {
       try {
         const newRoom = await addRoom(newRoomName.trim());
         if (newRoom) {
           router.push(`/room/${newRoom.id}`);
         }
       } catch (error) {
-          console.error("Failed to create room:", error)
-          setIsCreating(false);
-          // Optionally, show a toast to the user
+        console.error("Failed to create room:", error);
+        // Optionally, show a toast to the user
       }
-    }
+    });
   };
 
   return (
@@ -54,11 +54,11 @@ export default function Home() {
                 placeholder="Nome da sala"
                 className="flex-grow"
                 aria-label="Nome da nova sala"
-                disabled={isCreating}
+                disabled={isPending}
               />
-              <Button type="submit" className="w-full sm:w-auto" disabled={!newRoomName.trim() || isCreating}>
-                {isCreating ? <Loader2 className="animate-spin" /> : <PlusCircle />}
-                {isCreating ? 'Criando...' : 'Criar Sala'}
+              <Button type="submit" className="w-full sm:w-auto" disabled={!newRoomName.trim() || isPending}>
+                {isPending ? <Loader2 className="animate-spin" /> : <PlusCircle />}
+                {isPending ? 'Criando...' : 'Criar Sala'}
               </Button>
             </form>
           </CardContent>

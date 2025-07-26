@@ -48,34 +48,19 @@ export function generateBingoCard(): BingoNumber[] {
   return card;
 }
 
-// Checks if a player has won. Works with a flattened card.
+// Checks if a player has won by completing the entire card (Blackout).
 export function checkWin(player: Player, drawnNumbers: number[]): boolean {
-    const card = player.card; // This is now a 1D array
+    const card = player.card;
     const marked = new Set<BingoNumber>([...drawnNumbers, 'FREE']);
 
-    // Check rows and columns
-    for (let i = 0; i < CARD_SIZE; i++) {
-        let rowWin = true;
-        let colWin = true;
-        for (let j = 0; j < CARD_SIZE; j++) {
-            // Check row i
-            if (!marked.has(card[i * CARD_SIZE + j])) rowWin = false;
-            // Check col i
-            if (!marked.has(card[j * CARD_SIZE + i])) colWin = false;
+    // Check if every number on the card is in the marked set.
+    for (const number of card) {
+        if (!marked.has(number)) {
+            // If even one number is not marked, the player has not won yet.
+            return false;
         }
-        if (rowWin || colWin) return true;
     }
 
-    // Check diagonals
-    let diag1Win = true;
-    let diag2Win = true;
-    for (let i = 0; i < CARD_SIZE; i++) {
-        // Top-left to bottom-right
-        if (!marked.has(card[i * CARD_SIZE + i])) diag1Win = false;
-        // Top-right to bottom-left
-        if (!marked.has(card[i * CARD_SIZE + (CARD_SIZE - 1 - i)])) diag2Win = false;
-    }
-    if (diag1Win || diag2Win) return true;
-
-    return false;
+    // If all numbers are marked, it's a win.
+    return true;
 }

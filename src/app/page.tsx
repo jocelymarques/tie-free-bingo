@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, FormEvent, useTransition } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
@@ -12,24 +12,28 @@ import { PlusCircle, Loader2 } from 'lucide-react';
 export default function Home() {
   const { addRoom } = useBingo();
   const [newRoomName, setNewRoomName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
   const handleCreateRoom = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newRoomName.trim() || isPending) return;
+    if (!newRoomName.trim() || isCreating) return;
 
-    startTransition(async () => {
-      try {
-        const newRoom = await addRoom(newRoomName.trim());
-        if (newRoom) {
-          router.push(`/room/${newRoom.id}`);
-        }
-      } catch (error) {
-        console.error("Failed to create room:", error);
-        // Optionally, show a toast to the user
+    setIsCreating(true);
+    try {
+      const newRoom = await addRoom(newRoomName.trim());
+      if (newRoom && newRoom.id) {
+        router.push(`/room/${newRoom.id}`);
+      } else {
+        // Handle case where room is not created, maybe show a toast
+        console.error("Failed to create room, no ID returned.");
       }
-    });
+    } catch (error) {
+      console.error("Failed to create room:", error);
+      // Optionally, show a toast to the user
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -54,11 +58,11 @@ export default function Home() {
                 placeholder="Nome da sala"
                 className="flex-grow"
                 aria-label="Nome da nova sala"
-                disabled={isPending}
+                disabled={isCreating}
               />
-              <Button type="submit" className="w-full sm:w-auto" disabled={!newRoomName.trim() || isPending}>
-                {isPending ? <Loader2 className="animate-spin" /> : <PlusCircle />}
-                {isPending ? 'Criando...' : 'Criar Sala'}
+              <Button type="submit" className="w-full sm:w-auto" disabled={!newRoomName.trim() || isCreating}>
+                {isCreating ? <Loader2 className="animate-spin" /> : <PlusCircle />}
+                {isCreating ? 'Criando...' : 'Criar Sala'}
               </Button>
             </form>
           </CardContent>

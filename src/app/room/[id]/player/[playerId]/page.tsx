@@ -19,7 +19,7 @@ const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
 
 export default function PlayerPage() {
   const [isWinnerModalOpen, setWinnerModalOpen] = useState(false);
-  const { isMounted, rooms, drawNumber } = useBingo();
+  const { loading, getRoom, drawNumber } = useBingo();
   const router = useRouter();
   const params = useParams();
   const roomId = params.id as string;
@@ -27,15 +27,15 @@ export default function PlayerPage() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
-  const room = useMemo(() => rooms.find(r => r.id === roomId), [rooms, roomId]);
+  const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
   const player = useMemo(() => room?.players.find(p => p.id === playerId), [room, playerId]);
   const winner = useMemo(() => room?.winner ? room.players.find(p => p.id === room.winner) : null, [room]);
   
   useEffect(() => {
-    if (winner) {
+    if (winner && winner.id === playerId) {
       setWinnerModalOpen(true);
     }
-  }, [winner]);
+  }, [winner, playerId]);
 
   const handleDraw = useCallback(async () => {
     if (!room) return;
@@ -54,7 +54,7 @@ export default function PlayerPage() {
         if (result.error) {
           toast({ variant: 'destructive', title: 'Erro no Sorteio', description: result.error });
         } else if (result.newNumber) {
-          drawNumber(room.id, result.newNumber);
+          await drawNumber(room.id, result.newNumber);
         }
       } catch (e) {
         toast({ variant: 'destructive', title: 'Erro no Sorteio', description: 'Não foi possível sortear um novo número.' });
@@ -63,7 +63,7 @@ export default function PlayerPage() {
   }, [room, drawNumber, toast]);
 
 
-  if (!isMounted) {
+  if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
   

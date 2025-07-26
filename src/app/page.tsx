@@ -1,23 +1,27 @@
+
 'use client';
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const { addRoom } = useBingo();
   const [newRoomName, setNewRoomName] = useState('');
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  const handleCreateRoom = (e: FormEvent) => {
+  const handleCreateRoom = async (e: FormEvent) => {
     e.preventDefault();
     if (newRoomName.trim()) {
-      const newRoom = addRoom(newRoomName.trim());
-      router.push(`/room/${newRoom.id}`);
+      startTransition(async () => {
+        const newRoom = await addRoom(newRoomName.trim());
+        router.push(`/room/${newRoom.id}`);
+      });
     }
   };
 
@@ -44,8 +48,8 @@ export default function Home() {
                 className="flex-grow"
                 aria-label="Nome da nova sala"
               />
-              <Button type="submit" className="w-full sm:w-auto" disabled={!newRoomName.trim()}>
-                <PlusCircle />
+              <Button type="submit" className="w-full sm:w-auto" disabled={!newRoomName.trim() || isPending}>
+                {isPending ? <Loader2 className="animate-spin" /> : <PlusCircle />}
                 Criar Sala
               </Button>
             </form>

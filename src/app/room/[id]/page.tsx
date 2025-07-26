@@ -1,34 +1,37 @@
+
 'use client';
 
-import React, { useState, FormEvent, useMemo } from 'react';
+import React, { useState, FormEvent, useMemo, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Home, UserPlus, Gamepad2, Crown, ArrowLeft, Share2 } from 'lucide-react';
+import { Home, UserPlus, Gamepad2, Crown, ArrowLeft, Share2, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
 export default function RoomPage() {
   const [newPlayerName, setNewPlayerName] = useState('');
-  const { isMounted, rooms, addPlayer } = useBingo();
+  const { loading, getRoom, addPlayer } = useBingo();
   const router = useRouter();
   const params = useParams();
   const roomId = params.id as string;
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
-
-  const room = useMemo(() => rooms.find(r => r.id === roomId), [rooms, roomId]);
+  const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
 
   const handleAddPlayer = (e: FormEvent) => {
     e.preventDefault();
     if (newPlayerName.trim() && room && !room.winner) {
-      const newPlayer = addPlayer(roomId, newPlayerName.trim());
-      if (newPlayer) {
-        router.push(`/room/${roomId}/player/${newPlayer.id}`);
-      }
-      setNewPlayerName('');
+      startTransition(async () => {
+          const newPlayer = await addPlayer(roomId, newPlayerName.trim());
+          if (newPlayer) {
+            router.push(`/room/${roomId}/player/${newPlayer.id}`);
+          }
+          setNewPlayerName('');
+      });
     }
   };
   
@@ -49,7 +52,7 @@ export default function RoomPage() {
     });
   };
 
-  if (!isMounted) {
+  if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
 
@@ -57,7 +60,7 @@ export default function RoomPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
         <h2 className="text-2xl font-bold text-destructive mb-4">Sala não encontrada</h2>
-        <p className="text-muted-foreground mb-6">A sala que você está tentando acessar não existe.</p>
+        <p className="text-muted-foreground mb-6">A sala que você está tentando acessar não existe ou foi removida.</p>
         <Button onClick={() => router.push('/')}>
           <Home className="mr-2 h-4 w-4" />
           Voltar para o Início
@@ -110,10 +113,10 @@ export default function RoomPage() {
                   placeholder="Nome do jogador"
                   className="flex-grow"
                   aria-label="Nome do novo jogador"
-                  disabled={!!room.winner}
+                  disabled={!!room.winner || isPending}
                 />
-                <Button type="submit" className="w-full sm:w-auto" disabled={!newPlayerName.trim() || !!room.winner}>
-                  <UserPlus />
+                <Button type="submit" className="w-full sm:w-auto" disabled={!newPlayerName.trim() || !!room.winner || isPending}>
+                  {isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
                   Adicionar e Jogar
                 </Button>
               </form>

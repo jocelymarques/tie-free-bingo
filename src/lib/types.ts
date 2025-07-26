@@ -1,3 +1,4 @@
+
 export type BingoNumber = number | 'FREE';
 
 export interface Player {
@@ -6,14 +7,16 @@ export interface Player {
   card: BingoNumber[][];
 }
 
+export interface Draw {
+    drawnNumbers: number[];
+}
+
 export interface Room {
   id: string;
   name: string;
   players: Player[];
-  draw: {
-    drawnNumbers: number[];
-  };
-  winner?: string; // playerId
+  draw: Draw,
+  winner?: string | null; // playerId
 }
 
 export interface BingoData {

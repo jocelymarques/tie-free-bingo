@@ -7,7 +7,7 @@ const firebaseConfig = {
   appId: "1:263914224582:web:a2c682def90e7559e790c7",
   storageBucket: "bingo-local-qa74r.firebasestorage.app",
   apiKey: "AIzaSyDm0P1Yck3wMjK1c-O8lo0H8_6bLtUIR8s",
-  authDomain: "bingo-local-qa74r.firebaseapp.com",
+  authDomain: "bingoonline.com",
   measurementId: "",
   messagingSenderId: "263914224582"
 };

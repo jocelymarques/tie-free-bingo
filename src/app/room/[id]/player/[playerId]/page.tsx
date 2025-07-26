@@ -83,40 +83,36 @@ export default function PlayerPage() {
   const lastDrawnNumber = room.draw.drawnNumbers[room.draw.drawnNumbers.length - 1];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center">
-       <header className="container mx-auto p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex-1 w-full sm:w-auto flex justify-start">
-          <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)} className="w-full sm:w-auto">
+    <div className="min-h-screen bg-background flex flex-col">
+       <header className="container mx-auto p-4 flex items-center justify-start">
+          <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar para Sala
           </Button>
-        </div>
-        <div className="flex flex-col items-center gap-4 order-first sm:order-none">
-            <div className="text-center">
-                <h1 className="text-2xl font-bold font-headline text-primary">Cartela de {player.name}</h1>
-                <p className="text-muted-foreground">{room.name}</p>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-                {lastDrawnNumber && (
-                    <div className="flex flex-col items-center">
-                        <span className="text-xs text-muted-foreground">Último número</span>
-                        <div className="flex items-center justify-center p-1 rounded-full aspect-square text-2xl font-bold bg-accent text-accent-foreground shadow-lg h-14 w-14">
-                            {lastDrawnNumber}
-                        </div>
-                    </div>
-                )}
-                <Button size="lg" onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto">
-                    {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
-                    Sortear Número
-                </Button>
-            </div>
-        </div>
-        <div className="flex-1 w-full sm:w-auto flex justify-end">
-            {/* Espaçador */}
-        </div>
       </header>
 
-      <main className="container mx-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+      <div className="container mx-auto flex flex-col items-center justify-center flex-grow">
+        <div className="text-center">
+            <h1 className="text-2xl font-bold font-headline text-primary">Cartela de {player.name}</h1>
+            <p className="text-muted-foreground">{room.name}</p>
+        </div>
+        <div className="flex flex-col items-center gap-4 my-4">
+            {lastDrawnNumber && (
+                <div className="flex flex-col items-center">
+                    <span className="text-xs text-muted-foreground">Último número</span>
+                    <div className="flex items-center justify-center p-1 rounded-full aspect-square text-2xl font-bold bg-accent text-accent-foreground shadow-lg h-16 w-16">
+                        {lastDrawnNumber}
+                    </div>
+                </div>
+            )}
+            <Button size="lg" onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full sm:w-auto text-lg p-6">
+                {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
+                Sortear Número
+            </Button>
+        </div>
+      </div>
+
+      <main className="container mx-auto flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 p-4 mb-8">
         <div className="md:col-span-2">
             <Card className="h-full shadow-lg">
                 <CardHeader className="text-center p-2 sm:p-4">

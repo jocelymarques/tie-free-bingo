@@ -39,29 +39,20 @@ export function generateBingoCard(): BingoNumber[][] {
   return card;
 }
 
-// Checks if a player has won.
+// Checks if a player has won by marking the entire card.
 export function checkWin(player: Player, drawnNumbers: number[]): boolean {
   const card = player.card;
   const marked = new Set<BingoNumber>(drawnNumbers);
   marked.add('FREE');
 
-  // Check rows
-  for (let i = 0; i < CARD_SIZE; i++) {
-    if (card[i].every(num => marked.has(num))) {
-      return true;
+  // Check if all numbers on the card are marked
+  for (let row = 0; row < CARD_SIZE; row++) {
+    for (let col = 0; col < CARD_SIZE; col++) {
+      if (!marked.has(card[row][col])) {
+        return false; // Found an unmarked number
+      }
     }
   }
 
-  // Check columns
-  for (let i = 0; i < CARD_SIZE; i++) {
-    if (card.every(row => marked.has(row[i]))) {
-      return true;
-    }
-  }
-
-  // Check diagonals
-  const diag1 = card.every((row, i) => marked.has(row[i]));
-  const diag2 = card.every((row, i) => marked.has(row[CARD_SIZE - 1 - i]));
-
-  return diag1 || diag2;
+  return true; // All numbers are marked
 }

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
@@ -21,16 +21,14 @@ export default function Home() {
 
     setIsCreating(true);
     try {
-      const newRoom = await addRoom(newRoomName.trim());
-      if (newRoom && newRoom.id) {
-        router.push(`/room/${newRoom.id}`);
+      const roomId = await addRoom(newRoomName.trim());
+      if (roomId) {
+        router.push(`/room/${roomId}`);
       } else {
-        // Handle case where room is not created, maybe show a toast
         console.error("Failed to create room, no ID returned.");
       }
     } catch (error) {
       console.error("Failed to create room:", error);
-      // Optionally, show a toast to the user
     } finally {
       setIsCreating(false);
     }

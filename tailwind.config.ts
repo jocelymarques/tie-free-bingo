@@ -88,10 +88,16 @@ export default {
             height: '0',
           },
         },
+        'ball-pop': {
+          '0%': { transform: 'scale(0.5)', opacity: '0' },
+          '60%': { transform: 'scale(1.1)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'ball-pop': 'ball-pop 0.5s ease-out forwards',
       },
     },
   },

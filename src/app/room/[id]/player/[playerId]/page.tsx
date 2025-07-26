@@ -101,7 +101,7 @@ export default function PlayerPage() {
             {lastDrawnNumber && (
                 <div className="flex flex-col items-center">
                     <span className="text-xs text-muted-foreground">Último número</span>
-                    <div className="flex items-center justify-center p-1 rounded-full aspect-square text-2xl font-bold bg-accent text-accent-foreground shadow-lg h-16 w-16">
+                    <div key={lastDrawnNumber} className="flex items-center justify-center p-1 rounded-full aspect-square text-2xl font-bold bg-accent text-accent-foreground shadow-lg h-16 w-16 animate-ball-pop">
                         {lastDrawnNumber}
                     </div>
                 </div>

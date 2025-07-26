@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect, useCallback, useTransition } from 'react';
@@ -122,7 +123,7 @@ export default function PlayerPage() {
                     <CardTitle className="font-headline text-xl">Números Sorteados ({room.draw.drawnNumbers.length})</CardTitle>
                 </CardHeader>
                 <CardContent className="flex-grow p-0">
-                    <ScrollArea className="h-[calc(100%-1rem)] pr-6 pl-6 pb-6">
+                    <ScrollArea className="h-[calc(100%-1rem)] p-6">
                         {room.draw.drawnNumbers.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                                 <Gamepad className="h-12 w-12 mb-4" />

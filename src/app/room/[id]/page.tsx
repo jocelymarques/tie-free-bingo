@@ -6,8 +6,9 @@ import { useBingo } from '@/hooks/useBingo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Home, UserPlus, Gamepad2, Crown, ArrowLeft } from 'lucide-react';
+import { Home, UserPlus, Gamepad2, Crown, ArrowLeft, Share2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RoomPage() {
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -15,6 +16,8 @@ export default function RoomPage() {
   const router = useRouter();
   const params = useParams();
   const roomId = params.id as string;
+  const { toast } = useToast();
+
 
   const room = useMemo(() => rooms.find(r => r.id === roomId), [rooms, roomId]);
 
@@ -27,6 +30,23 @@ export default function RoomPage() {
       }
       setNewPlayerName('');
     }
+  };
+  
+  const handleCopyLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        toast({
+            title: "Link da sala copiado!",
+            description: "Agora você pode compartilhar com outros jogadores.",
+        });
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        toast({
+            title: "Falha ao copiar",
+            description: "Não foi possível copiar o link da sala.",
+            variant: "destructive"
+        })
+    });
   };
 
   if (!isMounted) {
@@ -56,8 +76,13 @@ export default function RoomPage() {
               <ArrowLeft />
               <span className="sr-only">Voltar</span>
           </Button>
-          <h1 className="text-4xl sm:text-5xl font-bold font-headline text-primary">{room.name}</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Gerencie os jogadores da sala</p>
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="text-4xl sm:text-5xl font-bold font-headline text-primary">{room.name}</h1>
+            <Button onClick={handleCopyLink} variant="outline" size="sm">
+                <Share2 className="mr-2" />
+                Copiar Link da Sala
+            </Button>
+          </div>
         </header>
 
         {winner && (

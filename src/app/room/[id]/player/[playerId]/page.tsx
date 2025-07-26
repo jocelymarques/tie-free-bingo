@@ -134,7 +134,7 @@ export default function PlayerPage() {
                                 {[...room.draw.drawnNumbers].reverse().map((num) => (
                                     <div key={num} className={cn(
                                         "flex items-center justify-center p-1 rounded-full aspect-square text-base font-bold transition-all duration-300",
-                                        num === lastDrawnNumber ? "bg-accent text-accent-foreground scale-110 shadow-lg" : "bg-primary/10 text-primary"
+                                        num === lastDrawnNumber ? "bg-accent text-accent-foreground shadow-lg" : "bg-primary/10 text-primary"
                                     )}>
                                         {num}
                                     </div>

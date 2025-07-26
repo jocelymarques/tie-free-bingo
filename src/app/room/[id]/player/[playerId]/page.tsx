@@ -83,7 +83,7 @@ export default function PlayerPage() {
   const lastDrawnNumber = room.draw.drawnNumbers[room.draw.drawnNumbers.length - 1];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col justify-center">
        <header className="container mx-auto p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="flex-1 w-full sm:w-auto">
           <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)} className="w-full sm:w-auto">
@@ -143,7 +143,7 @@ export default function PlayerPage() {
                             <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 text-center">
                                 {[...room.draw.drawnNumbers].reverse().map((num) => (
                                     <div key={num} className={cn(
-                                        "flex items-center justify-center p-1 rounded-full aspect-square text-base font-bold transition-all duration-300",
+                                        "flex items-center justify-center p-1 rounded-full aspect-square text-base font-bold transition-all duration-300 h-10 w-10",
                                         num === lastDrawnNumber ? "bg-accent text-accent-foreground shadow-lg" : "bg-primary/10 text-primary"
                                     )}>
                                         {num}

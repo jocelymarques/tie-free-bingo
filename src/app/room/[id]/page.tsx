@@ -24,7 +24,9 @@ export default function RoomPage() {
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
 
   useEffect(() => {
-    if (room) {
+    // We need to handle the case where the room is not found initially,
+    // but might be available on a subsequent render from the snapshot listener.
+    if (room !== undefined) {
       setIsLoading(false);
     }
   }, [room]);
@@ -64,7 +66,8 @@ export default function RoomPage() {
     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin h-8 w-8" /> Carregando Sala...</div>;
   }
 
-  if (!room) {
+  // After loading, if the room is null, it means it doesn't exist.
+  if (room === null || room === undefined) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
         <h2 className="text-2xl font-bold text-destructive mb-4">Sala não encontrada</h2>

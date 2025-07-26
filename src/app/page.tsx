@@ -20,13 +20,12 @@ export default function Home() {
     if (!newRoomName.trim() || isCreating) return;
 
     setIsCreating(true);
-    console.log('Iniciando a criação da sala...');
     try {
       const roomId = await addRoom(newRoomName.trim());
       if (roomId) {
-        console.log(`Sala criada com sucesso! ID: ${roomId}. Redirecionando...`);
         router.push(`/room/${roomId}`);
       } else {
+        // Handle error case, maybe show a toast
         console.error("Falha ao criar a sala: Nenhum ID de sala foi retornado.");
       }
     } catch (error) {

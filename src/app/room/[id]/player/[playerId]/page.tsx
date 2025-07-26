@@ -85,17 +85,17 @@ export default function PlayerPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center">
        <header className="container mx-auto p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="flex-1 w-full sm:w-auto">
+        <div className="flex-1 w-full sm:w-auto flex justify-start">
           <Button variant="outline" onClick={() => router.push(`/room/${roomId}`)} className="w-full sm:w-auto">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar para Sala
           </Button>
         </div>
-        <div className="text-center order-first sm:order-none">
-            <h1 className="text-2xl font-bold font-headline text-primary">Cartela de {player.name}</h1>
-            <p className="text-muted-foreground">{room.name}</p>
-        </div>
-        <div className="flex-1 w-full sm:w-auto flex justify-end">
+        <div className="flex flex-col items-center gap-4 order-first sm:order-none">
+            <div className="text-center">
+                <h1 className="text-2xl font-bold font-headline text-primary">Cartela de {player.name}</h1>
+                <p className="text-muted-foreground">{room.name}</p>
+            </div>
             <div className="flex flex-col items-center gap-2">
                 {lastDrawnNumber && (
                     <div className="flex flex-col items-center">
@@ -110,6 +110,9 @@ export default function PlayerPage() {
                     Sortear Número
                 </Button>
             </div>
+        </div>
+        <div className="flex-1 w-full sm:w-auto flex justify-end">
+            {/* Espaçador */}
         </div>
       </header>
 

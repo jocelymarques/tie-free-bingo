@@ -49,7 +49,6 @@ export default function RoomPage() {
             description: "Agora você pode compartilhar com outros jogadores.",
         });
     }).catch(err => {
-        console.error('Failed to copy: ', err);
         toast({
             title: "Falha ao copiar",
             description: "Não foi possível copiar o link da sala.",

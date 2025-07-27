@@ -26,7 +26,7 @@ export async function drawNumberAction({ drawnNumbers }: { drawnNumbers: number[
         return drawRandomNumber(drawnNumbers);
 
     } catch (e) {
-        console.error("AI flow failed, using fallback", e);
+        // AI flow failed, using fallback
         return drawRandomNumber(drawnNumbers);
     }
 }

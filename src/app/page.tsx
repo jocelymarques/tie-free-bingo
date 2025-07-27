@@ -26,10 +26,9 @@ export default function Home() {
         router.push(`/room/${roomId}`);
       } else {
         // Handle error case, maybe show a toast
-        console.error("Falha ao criar a sala: Nenhum ID de sala foi retornado.");
       }
     } catch (error) {
-      console.error("Erro crítico ao criar a sala:", error);
+      // Handle error
     } finally {
       setIsCreating(false);
     }
@@ -39,7 +38,7 @@ export default function Home() {
     <main className="container mx-auto p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-2xl space-y-8">
         <header className="text-center">
-          <img src="/icon.svg" alt="Bingo Icon" className="h-24 w-24 mx-auto" />
+          <img src="/icon.svg" alt="Bingo Icon" className="h-25 w-25 mx-auto" />
           <h1 className="text-5xl font-bold font-headline text-primary mt-4">Bingo Online</h1>
           <p className="text-muted-foreground mt-2 text-lg">Crie uma sala para começar a jogar</p>
         </header>

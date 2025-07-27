@@ -36,7 +36,6 @@ export function useBingo() {
       setRooms(roomsData);
       setIsLoading(false);
     }, (error) => {
-      console.error("Erro ao escutar atualizações de salas:", error);
       setIsLoading(false);
     });
     return () => {
@@ -57,7 +56,6 @@ export function useBingo() {
       const docRef = await addDoc(collection(db, 'rooms'), newRoomData);
       return docRef.id;
     } catch (error) {
-      console.error("Erro ao adicionar sala no Firebase:", error);
       throw error;
     }
   };
@@ -67,7 +65,6 @@ export function useBingo() {
     try {
         const roomSnap = await getDoc(roomRef);
         if (!roomSnap.exists()) {
-            console.error("Erro: Sala não encontrada para adicionar jogador.");
             return null;
         }
 
@@ -82,7 +79,6 @@ export function useBingo() {
         });
         return newPlayer;
     } catch (error) {
-        console.error(`Erro ao adicionar jogador na sala ${roomId}:`, error);
         return null;
     }
   };
@@ -92,7 +88,6 @@ export function useBingo() {
     try {
         const roomSnap = await getDoc(roomRef);
         if (!roomSnap.exists()) {
-            console.error("Erro: Sala não encontrada para sortear número.");
             return;
         }
 
@@ -114,7 +109,7 @@ export function useBingo() {
         await checkWinnerAction(roomId);
 
     } catch(error) {
-        console.error(`Erro ao sortear número na sala ${roomId}:`, error);
+        // Handle error
     }
   };
 

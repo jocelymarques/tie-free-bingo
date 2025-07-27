@@ -28,6 +28,23 @@ export default function RoomPage() {
 
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
 
+  const sortedPlayers = useMemo(() => {
+    if (!room?.players) return [];
+    
+    return [...room.players].sort((a, b) => {
+      const aRank = room.winners.indexOf(a.id);
+      const bRank = room.winners.indexOf(b.id);
+
+      if (aRank !== -1 && bRank !== -1) {
+        return aRank - bRank; // Sort winners by their rank
+      }
+      if (aRank !== -1) return -1; // a is a winner, b is not
+      if (bRank !== -1) return 1;  // b is a winner, a is not
+      return 0; // neither are winners
+    });
+  }, [room]);
+
+
   const handleAddPlayer = (e: FormEvent) => {
     e.preventDefault();
     if (newPlayerName.trim() && room && room.draw.drawnNumbers.length < 75) {
@@ -126,7 +143,7 @@ export default function RoomPage() {
             </CardContent>
           </Card>
 
-          {room.players.length > 0 && (
+          {sortedPlayers.length > 0 && (
             <Card className="w-full shadow-lg">
               <CardHeader>
                 <CardTitle className="font-headline text-2xl">Jogadores</CardTitle>
@@ -134,7 +151,7 @@ export default function RoomPage() {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {room.players.map((player) => {
+                  {sortedPlayers.map((player) => {
                     const winnerIndex = room.winners.indexOf(player.id);
                     const isWinner = winnerIndex !== -1;
                     

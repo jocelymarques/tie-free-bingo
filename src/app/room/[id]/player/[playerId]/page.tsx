@@ -30,9 +30,10 @@ export default function PlayerPage() {
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
   const player = useMemo(() => room?.players.find(p => p.id === playerId), [room, playerId]);
 
-  const hasPlayerWon = useMemo(() => {
-    if (!room || !player) return false;
-    return room.winners.includes(player.id);
+  const { hasPlayerWon, winnerRank } = useMemo(() => {
+    if (!room || !player) return { hasPlayerWon: false, winnerRank: -1 };
+    const rank = room.winners.indexOf(player.id);
+    return { hasPlayerWon: rank !== -1, winnerRank: rank };
   }, [room, player]);
 
   // Efeito para abrir o modal de vencedor uma única vez
@@ -86,7 +87,6 @@ export default function PlayerPage() {
   }
   
   const lastDrawnNumber = room.draw.drawnNumbers[room.draw.drawnNumbers.length - 1];
-  const winner = hasPlayerWon ? player : null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -163,11 +163,12 @@ export default function PlayerPage() {
         </div>
       </main>
 
-      {winner && (
+      {hasPlayerWon && (
         <WinnerModal 
           isOpen={isWinnerModalOpen} 
           setIsOpen={setWinnerModalOpen} 
-          winnerName={winner.name} 
+          winnerName={player.name}
+          winnerRank={winnerRank + 1}
         />
       )}
     </div>

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Home, UserPlus, Gamepad2, Crown, ArrowLeft, Share2, Loader2, QrCode } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeModal } from '@/components/QRCodeModal';
 
@@ -31,7 +30,7 @@ export default function RoomPage() {
 
   const handleAddPlayer = (e: FormEvent) => {
     e.preventDefault();
-    if (newPlayerName.trim() && room && !room.winner) {
+    if (newPlayerName.trim() && room && room.draw.drawnNumbers.length < 75) {
       startTransition(async () => {
           const newPlayer = await addPlayer(roomId, newPlayerName.trim());
           if (newPlayer) {
@@ -74,7 +73,7 @@ export default function RoomPage() {
     );
   }
 
-  const winner = room.winner ? room.players.find(p => p.id === room.winner) : null;
+  const isGameFinished = room.draw.drawnNumbers.length >= 75;
 
   return (
     <>
@@ -100,67 +99,68 @@ export default function RoomPage() {
             </div>
           </header>
 
-          {winner && (
-              <Alert variant="default" className="bg-primary/10 border-primary text-primary">
-                  <Crown className="h-5 w-5 !text-primary" />
-                  <AlertTitle className="font-headline text-xl">Temos um vencedor!</AlertTitle>
-                  <AlertDescription className="text-base">
-                      Parabéns, <strong>{winner.name}</strong>! Você completou a cartela.
-                  </AlertDescription>
-              </Alert>
-          )}
-
-          {!room.winner && (
-            <Card className="w-full shadow-lg">
-              <CardHeader>
-                <CardTitle className="font-headline text-2xl">Adicionar Novo Jogador</CardTitle>
-                <CardDescription>Digite o nome do jogador para gerar uma cartela.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleAddPlayer} className="flex flex-col sm:flex-row gap-4">
-                  <Input
-                    type="text"
-                    value={newPlayerName}
-                    onChange={(e) => setNewPlayerName(e.target.value)}
-                    placeholder="Nome do jogador"
-                    className="flex-grow"
-                    aria-label="Nome do novo jogador"
-                    disabled={!!room.winner || isPending}
-                  />
-                  <Button type="submit" className="w-full sm:w-auto" disabled={!newPlayerName.trim() || !!room.winner || isPending}>
-                    {isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
-                    Adicionar e Jogar
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          )}
+          
+          <Card className="w-full shadow-lg">
+            <CardHeader>
+              <CardTitle className="font-headline text-2xl">Adicionar Novo Jogador</CardTitle>
+              <CardDescription>
+                {isGameFinished ? "O jogo terminou! Não é possível adicionar novos jogadores." : "Digite o nome do jogador para gerar uma cartela."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddPlayer} className="flex flex-col sm:flex-row gap-4">
+                <Input
+                  type="text"
+                  value={newPlayerName}
+                  onChange={(e) => setNewPlayerName(e.target.value)}
+                  placeholder="Nome do jogador"
+                  className="flex-grow"
+                  aria-label="Nome do novo jogador"
+                  disabled={isGameFinished || isPending}
+                />
+                <Button type="submit" className="w-full sm:w-auto" disabled={!newPlayerName.trim() || isGameFinished || isPending}>
+                  {isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
+                  Adicionar e Jogar
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
           {room.players.length > 0 && (
             <Card className="w-full shadow-lg">
               <CardHeader>
                 <CardTitle className="font-headline text-2xl">Jogadores</CardTitle>
-                <CardDescription>Lista de jogadores na sala.</CardDescription>
+                <CardDescription>Lista de jogadores na sala e suas colocações.</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {room.players.map((player) => (
-                    <li
-                      key={player.id}
-                      className={`flex justify-between items-center p-4 rounded-lg transition-all ${
-                        player.id === winner?.id ? 'bg-accent/80 text-accent-foreground shadow-lg' : 'bg-secondary/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                          {player.id === winner?.id && <Crown className="text-yellow-400" />}
-                          <span className="font-semibold text-lg">{player.name}</span>
-                      </div>
-                      <Button onClick={() => router.push(`/room/${roomId}/player/${player.id}`)} variant="outline" size="sm">
-                        <Gamepad2 className="mr-2 h-4 w-4" />
-                        Ver Cartela
-                      </Button>
-                    </li>
-                  ))}
+                  {room.players.map((player) => {
+                    const winnerIndex = room.winners.indexOf(player.id);
+                    const isWinner = winnerIndex !== -1;
+                    
+                    return (
+                        <li
+                          key={player.id}
+                          className={`flex justify-between items-center p-4 rounded-lg transition-all ${
+                            isWinner ? 'bg-accent/80 text-accent-foreground shadow-lg' : 'bg-secondary/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                              {isWinner && (
+                                <div className="flex items-center gap-2 text-yellow-400">
+                                    <Crown />
+                                    <span className="font-bold text-lg">{winnerIndex + 1}º</span>
+                                </div>
+                              )}
+                              <span className="font-semibold text-lg">{player.name}</span>
+                          </div>
+                          <Button onClick={() => router.push(`/room/${roomId}/player/${player.id}`)} variant="outline" size="sm">
+                            <Gamepad2 className="mr-2 h-4 w-4" />
+                            Ver Cartela
+                          </Button>
+                        </li>
+                    )
+                  })}
                 </ul>
               </CardContent>
             </Card>

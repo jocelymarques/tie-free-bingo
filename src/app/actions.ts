@@ -48,12 +48,22 @@ export async function checkWinnerAction(roomId: string) {
     }
 
     const room = roomSnap.data() as Room;
-    if (room.winner) return; // Winner already declared
+    const currentWinners = room.winners || [];
+    let hasNewWinner = false;
 
     for (const player of room.players) {
-        if (checkWin(player, room.draw.drawnNumbers)) {
-            await updateDoc(roomRef, { winner: player.id });
-            break; 
+        // Se o jogador ainda não está na lista de vencedores
+        if (!currentWinners.includes(player.id)) {
+            // E se ele completou a cartela
+            if (checkWin(player, room.draw.drawnNumbers)) {
+                currentWinners.push(player.id); // Adiciona na lista
+                hasNewWinner = true;
+            }
         }
+    }
+
+    // Se houve novos vencedores, atualiza o documento no Firestore
+    if (hasNewWinner) {
+        await updateDoc(roomRef, { winners: currentWinners });
     }
 }

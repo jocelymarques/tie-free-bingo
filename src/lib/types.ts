@@ -17,5 +17,5 @@ export interface Room {
   name: string;
   players: Player[];
   draw: Draw,
-  winner?: string | null; // playerId
+  winners: string[]; // Alterado de winner: string | null para um array de IDs de jogadores
 }

@@ -30,20 +30,24 @@ export default function PlayerPage() {
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
   const player = useMemo(() => room?.players.find(p => p.id === playerId), [room, playerId]);
 
-  const winner = useMemo(() => room?.winner ? room.players.find(p => p.id === room.winner) : null, [room]);
-  
+  const hasPlayerWon = useMemo(() => {
+    if (!room || !player) return false;
+    return room.winners.includes(player.id);
+  }, [room, player]);
+
+  // Efeito para abrir o modal de vencedor uma única vez
   useEffect(() => {
-    if (winner && winner.id === playerId) {
-      setWinnerModalOpen(true);
+    if (hasPlayerWon) {
+      const hasModalBeenShown = sessionStorage.getItem(`winnerModal_${roomId}_${playerId}`);
+      if (!hasModalBeenShown) {
+        setWinnerModalOpen(true);
+        sessionStorage.setItem(`winnerModal_${roomId}_${playerId}`, 'true');
+      }
     }
-  }, [winner, playerId]);
+  }, [hasPlayerWon, roomId, playerId]);
 
   const handleDraw = useCallback(async () => {
     if (!room) return;
-    if (room.winner) {
-        toast({ variant: 'destructive', title: 'Jogo Finalizado', description: 'Um vencedor já foi declarado.' });
-        return;
-    };
     if (room.draw.drawnNumbers.length >= 75) {
         toast({ variant: 'destructive', title: 'Jogo Finalizado', description: 'Todos os números já foram sorteados.' });
         return;
@@ -82,6 +86,7 @@ export default function PlayerPage() {
   }
   
   const lastDrawnNumber = room.draw.drawnNumbers[room.draw.drawnNumbers.length - 1];
+  const winner = hasPlayerWon ? player : null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -121,7 +126,7 @@ export default function PlayerPage() {
                             </div>
                         </div>
                     )}
-                    <Button size="lg" onClick={handleDraw} disabled={isPending || !!room.winner} className="w-full text-lg p-6">
+                    <Button size="lg" onClick={handleDraw} disabled={isPending || room.draw.drawnNumbers.length >= 75} className="w-full text-lg p-6">
                         {isPending ? <Loader2 className="animate-spin" /> : <Zap />}
                         Sortear Número
                     </Button>
@@ -168,4 +173,3 @@ export default function PlayerPage() {
     </div>
   );
 }
-

@@ -38,7 +38,7 @@ export default function Home() {
     <main className="container mx-auto p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-2xl space-y-8">
         <header className="text-center">
-          <img src="/icon.svg" alt="Bingo Icon" className="h-25 w-25 mx-auto" />
+          <img src="/icon.png" alt="Bingo Icon" className="h-64 w-64 mx-auto" />
           <h1 className="text-5xl font-bold font-headline text-primary mt-4">Bingo Online</h1>
           <p className="text-muted-foreground mt-2 text-lg">Crie uma sala para começar a jogar</p>
         </header>

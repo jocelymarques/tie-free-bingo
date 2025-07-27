@@ -51,7 +51,7 @@ export function useBingo() {
         draw: {
           drawnNumbers: [],
         },
-        winner: null,
+        winners: [], // Inicializado como um array vazio
       };
       const docRef = await addDoc(collection(db, 'rooms'), newRoomData);
       return docRef.id;
@@ -93,9 +93,6 @@ export function useBingo() {
 
         const room = roomSnap.data() as Room;
 
-        if (room.winner) {
-            return;
-        }
         if (room.draw.drawnNumbers.includes(newNumber)) {
             return;
         }

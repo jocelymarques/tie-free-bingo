@@ -171,7 +171,7 @@ export default function RoomPage() {
                               )}
                               <span className="font-semibold text-lg">{player.name}</span>
                           </div>
-                          <Button onClick={() => router.push(`/room/${roomId}/player/${player.id}`)} variant="outline" size="sm">
+                          <Button onClick={() => router.push(`/room/${roomId}/player/${player.id}`)} variant={isWinner ? 'secondary' : 'outline'} size="sm">
                             <Gamepad2 className="mr-2 h-4 w-4" />
                             Ver Cartela
                           </Button>

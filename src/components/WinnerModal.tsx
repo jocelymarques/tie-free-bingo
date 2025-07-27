@@ -20,8 +20,8 @@ export function WinnerModal({ isOpen, setIsOpen, winnerName, winnerRank }: Winne
             <Crown className="h-20 w-20 text-yellow-400 mb-4" />
           <DialogTitle className="text-3xl font-headline">BINGO!</DialogTitle>
           <DialogDescription className="text-lg pt-2">
-            Parabéns, <strong className="text-primary">{winnerName}</strong>! 
-            {winnerRank ? ` Você ficou em ${winnerRank}º lugar!` : ' Você venceu!'}
+            Parabéns para <strong className="text-primary">{winnerName}</strong>!
+            {winnerRank ? ` Ele(a) completou a cartela e ficou em ${winnerRank}º lugar!` : ' Ele(a) venceu!'}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-center">

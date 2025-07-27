@@ -19,6 +19,8 @@ const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
 
 export default function PlayerPage() {
   const [isWinnerModalOpen, setWinnerModalOpen] = useState(false);
+  const [lastAnnouncedWinnerId, setLastAnnouncedWinnerId] = useState<string | null>(null);
+
   const { getRoom, drawNumber, isLoading: isBingoLoading } = useBingo();
   const router = useRouter();
   const params = useParams();
@@ -29,23 +31,26 @@ export default function PlayerPage() {
 
   const room = useMemo(() => getRoom(roomId), [getRoom, roomId]);
   const player = useMemo(() => room?.players.find(p => p.id === playerId), [room, playerId]);
+  
+  const announcedWinner = useMemo(() => {
+    if (!room || !lastAnnouncedWinnerId) return null;
+    return room.players.find(p => p.id === lastAnnouncedWinnerId);
+  }, [room, lastAnnouncedWinnerId]);
 
-  const { hasPlayerWon, winnerRank } = useMemo(() => {
-    if (!room || !player) return { hasPlayerWon: false, winnerRank: -1 };
-    const rank = room.winners.indexOf(player.id);
-    return { hasPlayerWon: rank !== -1, winnerRank: rank };
-  }, [room, player]);
-
-  // Efeito para abrir o modal de vencedor uma única vez
+  // Effect to show winner modal to all players
   useEffect(() => {
-    if (hasPlayerWon) {
-      const hasModalBeenShown = sessionStorage.getItem(`winnerModal_${roomId}_${playerId}`);
-      if (!hasModalBeenShown) {
+    if (room && room.winners.length > 0) {
+      const latestWinnerId = room.winners[room.winners.length - 1];
+      const hasModalBeenShownForThisWinner = sessionStorage.getItem(`winnerModal_${roomId}_${latestWinnerId}`);
+      
+      if (!hasModalBeenShownForThisWinner) {
+        setLastAnnouncedWinnerId(latestWinnerId);
         setWinnerModalOpen(true);
-        sessionStorage.setItem(`winnerModal_${roomId}_${playerId}`, 'true');
+        sessionStorage.setItem(`winnerModal_${roomId}_${latestWinnerId}`, 'true');
       }
     }
-  }, [hasPlayerWon, roomId, playerId]);
+  }, [room?.winners.length, roomId]);
+
 
   const handleDraw = useCallback(async () => {
     if (!room) return;
@@ -163,12 +168,12 @@ export default function PlayerPage() {
         </div>
       </main>
 
-      {hasPlayerWon && (
+      {announcedWinner && (
         <WinnerModal 
           isOpen={isWinnerModalOpen} 
           setIsOpen={setWinnerModalOpen} 
-          winnerName={player.name}
-          winnerRank={winnerRank + 1}
+          winnerName={announcedWinner.name}
+          winnerRank={room ? room.winners.indexOf(announcedWinner.id) + 1 : undefined}
         />
       )}
     </div>
